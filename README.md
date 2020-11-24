@@ -1,6 +1,7 @@
 # wordpress-tutorial
 WordPress の練習用レポジトリ  
-参考: [クィックスタート: Compose と WordPress — Docker\-docs\-ja 17\.06 ドキュメント](https://docs.docker.jp/compose/wordpress.html)
+参考: [クィックスタート: Compose と WordPress — Docker\-docs\-ja 17\.06 ドキュメント](https://docs.docker.jp/compose/wordpress.html)  
+[wmapst/wmap\_infrastructure\_wordpress](https://github.com/wmapst/wmap_infrastructure_wordpress)
 
 # Docker，Docker Composeのインストール
 [Install Docker Engine \| Docker Documentation](https://docs.docker.com/engine/install/)  

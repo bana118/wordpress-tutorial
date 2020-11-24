@@ -1,10 +1,11 @@
-version: "3"
+version: "3.3"
 
 services:
   db:
     image: mysql:5.7
     volumes:
       - ./db-data:/var/lib/mysql
+      - ./mysql-conf/my.cnf:/etc/mysql/my.cnf
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
@@ -12,35 +13,68 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_USER_PASS}
       TZ: "Asia/Tokyo"
+    networks:
+      app_net:
+        ipv4_address: "172.18.0.2"
 
   wordpress:
     depends_on:
       - db
-    image: wordpress:5.5
-    # ports:
-    #   - "80:80"
+    image: wordpress:5-fpm
+    ports:
+      - "9000:9000"
     restart: always
     volumes:
       - ./wordpress:/var/www/html
-      - ./apache2:/etc/apache2
+      - ./php-conf/php.ini:/usr/local/etc/php/php.ini
+      - ./php-conf/www.conf:/usr/local/etc/php-fpm.d/www.conf
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_NAME: ${DB_NAME}
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_USER_PASS}
+    networks:
+      app_net:
+        ipv4_address: "172.18.0.3"
+
+  web:
+    depends_on:
+      - wordpress
+    image: nginx:1.19
+    restart: always
+    volumes:
+      - ./nginx-conf:/etc/nginx/conf.d
+      - ./wordpress:/var/www/html
+      - ./web-logs:/var/log/nginx
+    environment:
+      TZ: "Asia/Tokyo"
+    networks:
+      app_net:
+        ipv4_address: "172.18.0.4"
 
   https-portal:
     depends_on:
-      - wordpress
+      - web
     image: steveltn/https-portal:1
     ports:
       - "80:80"
       - "443:443"
     restart: always
     volumes:
-      - ./ssl_certs:/var/lib/https-portal
+      - ./ssl-certs:/var/lib/https-portal
     environment:
-      DOMAINS: "${HOST_DOMAIN} -> http://wordpress:80/"
+      DOMAINS: "${HOST_DOMAIN} -> http://web:80/"
       STAGE: "${PRODUCTION_STAGE}"
       CLIENT_MAX_BODY_SIZE: 64M
       TZ: "Asia/Tokyo"
+    networks:
+      app_net:
+        ipv4_address: "172.18.0.5"
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.18.0.0/16"
