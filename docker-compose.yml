@@ -1,30 +1,46 @@
-version: '3'
+version: "3"
 
 services:
-   db:
-     image: mysql:5.7
-     volumes:
-       - ./db-data:/var/lib/mysql
-     restart: always
-     environment:
-       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
-       MYSQL_DATABASE: ${DB_NAME}
-       MYSQL_USER: ${DB_USER}
-       MYSQL_PASSWORD: ${DB_USER_PASS}
-       TZ: 'Asia/Tokyo'
+  db:
+    image: mysql:5.7
+    volumes:
+      - ./db-data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_USER_PASS}
+      TZ: "Asia/Tokyo"
 
-   wordpress:
-     depends_on:
-       - db
-     image: wordpress:latest
-     ports:
-       - "80:80"
-     restart: always
-     volumes:
-       - ./wordpress:/var/www/html
-       - ./apache2:/etc/apache2
-     environment:
-       WORDPRESS_DB_HOST: db:3306
-       WORDPRESS_DB_NAME: ${DB_NAME}
-       WORDPRESS_DB_USER: ${DB_USER}
-       WORDPRESS_DB_PASSWORD: ${DB_USER_PASS}
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:5.5
+    # ports:
+    #   - "80:80"
+    restart: always
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./apache2:/etc/apache2
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${DB_NAME}
+      WORDPRESS_DB_USER: ${DB_USER}
+      WORDPRESS_DB_PASSWORD: ${DB_USER_PASS}
+
+  https-portal:
+    depends_on:
+      - wordpress
+    image: steveltn/https-portal:1
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - ./ssl_certs:/var/lib/https-portal
+    environment:
+      DOMAINS: "${HOST_DOMAIN} -> http://wordpress:80/"
+      STAGE: "${PRODUCTION_STAGE}"
+      CLIENT_MAX_BODY_SIZE: 64M
+      TZ: "Asia/Tokyo"

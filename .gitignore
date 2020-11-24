@@ -23,3 +23,6 @@
 
 # environmental file
 .env
+
+# cert files
+/ssl_certs/
