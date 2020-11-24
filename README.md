@@ -32,6 +32,7 @@ sudo usermod -a -G docker ${username}
 ## 開発環境での実行
 ```bash
 git clone https://github.com/bana118/wordpress-tutorial.git
+cd wordpress-tutorial
 ```
 
 ### 環境ファイルの作成
