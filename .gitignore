@@ -25,4 +25,4 @@
 .env
 
 # cert files
-/ssl_certs/
+/ssl-certs/
