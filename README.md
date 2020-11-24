@@ -7,6 +7,11 @@ WordPress の練習用レポジトリ
 [Install Docker Compose \| Docker Documentation](https://docs.docker.com/compose/install/)
 
 # 開発環境での実行
+環境ファイルの作成
+```bash
+cp .env.local .env
+```
+
 起動
 
 ```bash
